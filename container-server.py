@@ -1,3 +1,4 @@
+
 from flask import Flask, Response, render_template, request
 import json
 from subprocess import Popen, PIPE
@@ -66,8 +67,8 @@ def containers_show(id):
     Inspect specific container
 
     """
-    output = docker ('inspect')
-    resp = json.dumps(docker_images_to_array(output))
+    output = docker ('logs','-f',id)
+    resp = json.dumps(docker_ps_to_array(output))
     return Response(response=resp, mimetype="application/json")
 
 @app.route('/containers/<id>/logs', methods=['GET'])
@@ -76,7 +77,7 @@ def containers_log(id):
     Dump specific container logs
 
     """
-    output = docker ('containers',id,'logs')
+    output = docker ('inspect',id)
     resp = json.dumps(docker_logs_to_object(id,output))
     return Response(response=resp, mimetype="application/json")
 
@@ -93,10 +94,10 @@ def images_remove(id):
 @app.route('/containers/<id>', methods=['DELETE'])
 def containers_remove(id):
     """
-    Delete a specific container - must be alrea0dy stopped/killed
+    Delete a specific container - must be already stopped/killed
 	
     """
-    docker ('rm','-f','container',id)
+    output = docker ('rm','-f','container',id)
     resp = json.dumps(docker_ps_to_array(output))
     return Response(response=resp, mimetype="application/json")
 
@@ -244,4 +245,4 @@ def docker_images_to_array(output):
     return all
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0",port=8081, debug=True)
+    app.run(host="0.0.0.0",port=8171, debug=True)
